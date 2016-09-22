@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache>
+    <defaultCache maxElementsInMemory="10000" eternal="false" timeToIdleSeconds="120" timeToLiveSeconds="120"
+                  overflowToDisk="false" maxElementsOnDisk="10000000" diskPersistent="false"
+                  diskExpiryThreadIntervalSeconds="120" memoryStoreEvictionPolicy="LRU"/>
+<!--
+    <cache name="org.apache.cxf.rs.security.oauth2.common.OAuthPermission"
+           maxElementsInMemory="10000"
+           eternal="false"
+           diskPersistent="false"
+           timeToLiveSeconds="3600"/>
+    <cache name="org.apache.cxf.rs.security.oauth2.common.OAuthPermission.httpVerbs"
+           maxElementsInMemory="10000"
+           eternal="false"
+           diskPersistent="false"
+           timeToLiveSeconds="3600"/>
+    <cache name="org.apache.cxf.rs.security.oauth2.common.OAuthPermission.uris"
+           maxElementsInMemory="10000"
+           eternal="false"
+           diskPersistent="false"
+           timeToLiveSeconds="3600"/>
+    <cache name="org.apache.cxf.rs.security.oauth2.common.ServerAccessToken.scopes"
+           maxElementsInMemory="10000"
+           eternal="false"
+           diskPersistent="false"
+           timeToLiveSeconds="3600"/>
+-->
+</ehcache>

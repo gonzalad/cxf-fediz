@@ -33,12 +33,15 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.security.NamePasswordCallbackHandler;
 import org.apache.cxf.rs.security.oauth2.common.Client;
 import org.apache.cxf.rs.security.oauth2.common.OAuthPermission;
-import org.apache.cxf.rs.security.oauth2.grants.code.DefaultEHCacheCodeDataProvider;
+import org.apache.cxf.rs.security.oauth2.grants.code.JPACMTCodeDataProvider;
 import org.apache.cxf.rs.security.oauth2.provider.OAuthServiceException;
 import org.apache.cxf.rs.security.oauth2.utils.OAuthConstants;
 import org.apache.cxf.rs.security.oidc.utils.OidcUtils;
 
-public class OAuthDataProviderImpl extends DefaultEHCacheCodeDataProvider {
+/**
+ * DefaultEHCacheCodeDataProvider
+ */
+public class OAuthDataProviderImpl extends JPACMTCodeDataProvider {
     
     private static final Logger LOG = LogUtils.getL7dLogger(OAuthDataProviderImpl.class);
     

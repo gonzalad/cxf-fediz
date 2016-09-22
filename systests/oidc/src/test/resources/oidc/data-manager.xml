@@ -18,23 +18,31 @@
   under the License.
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:util="http://www.springframework.org/schema/util"
-    xsi:schemaLocation="
-        http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-        http://www.springframework.org/schema/util 
-        http://www.springframework.org/schema/util/spring-util.xsd
-        ">
-    
-    <bean id="applicationContextProvider" class="org.apache.cxf.fediz.service.oidc.handler.hrd.ApplicationContextProvider"/>
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/aop
+                           http://www.springframework.org/schema/aop/spring-aop.xsd
+                           http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/tx
+                           http://www.springframework.org/schema/tx/spring-tx.xsd
+                           http://www.springframework.org/schema/util
+                           http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <bean id="applicationContextProvider"
+          class="org.apache.cxf.fediz.service.oidc.handler.hrd.ApplicationContextProvider"/>
 
     <!-- List of accepted scopes -->
     <util:map id="supportedScopes">
-        <entry key="openid" value="Access the authentication claims" />
-        <entry key="refreshToken" value="Refresh access tokens" />
+        <entry key="openid" value="Access the authentication claims"/>
+        <entry key="refreshToken" value="Refresh access tokens"/>
     </util:map>
-    
+
     <!-- 
         List of required scopes that must be available in request URIs when
         client redirects users to OIDC
@@ -42,7 +50,7 @@
     <util:list id="coreScopes">
         <value>openid</value>
     </util:list>
-    
+
     <!-- 
         Typically the scopes authorized by the user will be reported back to the client,
         reporting an approved refreshToken scope is currently disabled  
@@ -50,24 +58,24 @@
     <util:list id="invisibleToClientScopes">
         <value>refreshToken</value>
     </util:list>
-    
+
     <!-- 
         To support the alternative data persistence strategies: either register a custom
         AbstractCodeDataProvider extension or implement AuthorizationCodeDataProvider directly
-    -->     
-    <bean id="oauthProvider" 
+    -->
+    <bean id="oauthProvider"
           class="org.apache.cxf.fediz.service.oidc.OAuthDataProviderImpl"
           init-method="init" destroy-method="close">
-        <!-- List of accepted scopes -->  
+        <!-- List of accepted scopes -->
         <property name="supportedScopes" ref="supportedScopes"/>
-        <!-- 
-             List of scopes that the consent/authorization form should make 
+        <!--
+             List of scopes that the consent/authorization form should make
              selected by default. For example, asking a user to do an extra click
              to approve an "oidc" scope is a redundant operation because this scope
              is required anyway.
         -->
         <property name="defaultScopes" ref="coreScopes"/>
-        
+
         <property name="invisibleToClientScopes" ref="invisibleToClientScopes"/>
         <!--
         <property name="accessTokenLifetime" value="3600"/>
@@ -76,12 +84,78 @@
         <property name="supportPreauthorizedTokens" value="true"/>
         -->
         <property name="contextName" value="sts"/>
+        <property name="entityManagerFactory" ref="entityManagerFactory"/>
     </bean>
 
-    <!-- Custom SubjectCreator where IdToken is created -->    
+    <!-- Custom SubjectCreator where IdToken is created -->
     <bean id="subjectCreator" class="org.apache.cxf.fediz.service.oidc.FedizSubjectCreator">
         <property name="idTokenIssuer" value="accounts.fediz.com"/>
     </bean>
-         
+
+    <bean id="entityManagerFactory"
+          class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <!--&lt;!&ndash; Hibernate &ndash;&gt;-->
+        <!--<property name="persistenceUnitName" value="testUnitHibernate"/>-->
+        <!--<property name="jpaVendorAdapter">-->
+            <!--<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">-->
+                <!--<property name="showSql" value="true"/>-->
+                <!--<property name="generateDdl" value="true"/>-->
+                <!--<property name="databasePlatform" value="${db.databasePlatform}"/>-->
+            <!--</bean>-->
+        <!--</property>-->
+        <!--<property name="jpaPropertyMap">-->
+            <!--<map>-->
+                <!--<entry key="hibernate.jdbc.fetch_size" value="400"/>-->
+                <!--<entry key="hibernate.jdbc.batch_size" value="100"/>-->
+            <!--</map>-->
+        <!--</property>-->
+        <!-- Open Jpa -->
+        <property name="persistenceUnitName" value="testUnitOpenJPA"/>
+        <property name="loadTimeWeaver">
+            <bean class="org.springframework.instrument.classloading.ReflectiveLoadTimeWeaver"/>
+        </property>
+        <property name="jpaVendorAdapter">
+            <bean class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
+                <property name="showSql" value="true"/>
+                <property name="generateDdl" value="true"/>
+            </bean>
+        </property>
+        <property name="jpaPropertyMap">
+            <map>
+                <entry key="openjpa.Log" value="slf4j"/>
+                <entry key="openjpa.Log" value="SQL=TRACE"/>
+                <entry key="openjpa.ConnectionFactoryProperties"
+                       value="PrintParameters=true, PrettyPrint=true, PrettyPrintLineLength=80"/>
+                <entry key="openjpa.jdbc.SynchronizeMappings" value="buildSchema"/>
+                <entry key="openjpa.Log" value="DefaultLevel=WARN, Runtime=INFO, Tool=INFO, SQL=TRACE"/>
+                <entry key="javax.persistence.sharedCache.mode" value="ENABLE_SELECTIVE"/>
+                <entry key="openjpa.DataCache" value="true(Lru=true, CacheSize=10000)"/>
+                <entry key="openjpa.QueryCache" value="true(Lru=true)"/>
+                <entry key="openjpa.jdbc.EagerFetchMode" value="parallel"/>
+                <entry key="openjpa.MaxFetchDepth" value="20"/>
+            </map>
+        </property>
+    </bean>
+
+    <!-- post-processors for all standard config annotations -->
+    <context:annotation-config/>
+
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory"/>
+    </bean>
+
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+    <aop:config>
+        <aop:pointcut id="oauthProviderOperation"
+                      expression="bean(oauthProvider) || bean(accessTokenService) || bean(authorizationService)"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="oauthProviderOperation"/>
+    </aop:config>
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="*"/>
+        </tx:attributes>
+    </tx:advice>
+
 </beans>
 

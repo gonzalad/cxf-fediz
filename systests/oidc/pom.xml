@@ -17,7 +17,8 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.apache.cxf.fediz</groupId>
@@ -34,6 +35,18 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-rs-security-oauth2</artifactId>
+            <version>3.1.8-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-rs-security-sso-oidc</artifactId>
+            <version>3.1.8-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>net.sourceforge.htmlunit</groupId>
             <artifactId>htmlunit</artifactId>
@@ -90,7 +103,8 @@
         <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
-            <version>${hsqldb.version}</version>
+            <version>2.3.2</version>
+            <!--<version>${hsqldb.version}</version>-->
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -100,14 +114,20 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-	        <groupId>org.apache.cxf</groupId>
-	        <artifactId>cxf-rt-ws-security</artifactId>
-	        <version>${cxf.version}</version>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-ws-security</artifactId>
+            <version>${cxf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-ws-policy</artifactId>
             <version>${cxf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.openjpa</groupId>
+            <artifactId>openjpa</artifactId>
+            <version>${openjpa.version}</version>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
     <build>
@@ -194,11 +214,12 @@
                         <id>copy-extra-jars-to-oidc</id>
                         <phase>package</phase>
                         <goals>
-                          <goal>copy-dependencies</goal>
+                            <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${basedir}/target/tomcat/rp/webapps/fediz-oidc/WEB-INF/lib</outputDirectory>
-                             <includeScope>compile</includeScope>
+                            <outputDirectory>${basedir}/target/tomcat/rp/webapps/fediz-oidc/WEB-INF/lib
+                            </outputDirectory>
+                            <includeScope>compile</includeScope>
                         </configuration>
                     </execution>
                 </executions>
@@ -214,8 +235,9 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${basedir}/target/tomcat/idp/webapps/fediz-idp/WEB-INF/classes</outputDirectory>
-                            <resources>          
+                            <outputDirectory>${basedir}/target/tomcat/idp/webapps/fediz-idp/WEB-INF/classes
+                            </outputDirectory>
+                            <resources>
                                 <resource>
                                     <directory>${basedir}/src/test/resources/realma</directory>
                                     <includes>
@@ -223,8 +245,8 @@
                                     </includes>
                                     <filtering>true</filtering>
                                 </resource>
-                            </resources>              
-                        </configuration>            
+                            </resources>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>copy-entities-to-oidc</id>
@@ -234,7 +256,7 @@
                         </goals>
                         <configuration>
                             <outputDirectory>${basedir}/target/tomcat/rp/webapps/fediz-oidc/WEB-INF</outputDirectory>
-                            <resources>          
+                            <resources>
                                 <resource>
                                     <directory>${basedir}/src/test/resources/oidc</directory>
                                     <includes>
@@ -243,8 +265,8 @@
                                     </includes>
                                     <filtering>true</filtering>
                                 </resource>
-                            </resources>              
-                        </configuration>            
+                            </resources>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -261,7 +283,8 @@
                         <configuration>
                             <tasks>
                                 <delete>
-                                    <fileset dir="${basedir}/target/tomcat/rp/webapps/fediz-oidc/META-INF" includes="context.xml" />
+                                    <fileset dir="${basedir}/target/tomcat/rp/webapps/fediz-oidc/META-INF"
+                                             includes="context.xml"/>
                                 </delete>
                             </tasks>
                         </configuration>
@@ -290,8 +313,8 @@
                             <includes>
                                 <include>**/systests/**</include>
                             </includes>
-                            <argLine>-Xms512m -Xmx1024m -XX:MaxPermSize=256m </argLine>
-                            <!--argLine>-Xms512m -Xmx1024m -XX:MaxPermSize=256m -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y</argLine-->
+                            <argLine>-Xms512m -Xmx1024m -XX:MaxPermSize=256m -javaagent:${project.basedir}/target/openjpa-${openjpa.version}.jar</argLine>
+                            <!--argLine>-Xms512m -Xmx1024m -XX:MaxPermSize=256m -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y -javaagent:${project.basedir}/target/openjpa-${openjpa.version}.jar</argLine-->
                         </configuration>
                     </execution>
                     <execution>
@@ -312,6 +335,78 @@
                         <exclude>**/systests/**</exclude>
                     </excludes>
                 </configuration>
+            </plugin>
+            <!-- cannot enhance classes in a jar
+            <plugin>
+                <groupId>org.apache.openjpa</groupId>
+                <artifactId>openjpa-maven-plugin</artifactId>
+                <version>${openjpa.version}</version>
+                <configuration>
+                    <includes>
+                        org/apache/cxf/rs/security/oidc/idp/OidcUserSubject.class,
+                        org/apache/cxf/rs/security/oauth2/common/Client.class,
+                        org/apache/cxf/rs/security/oauth2/common/UserSubject.class,
+                        org/apache/cxf/rs/security/oauth2/grants/code/AuthorizationCodeGrant,
+                        org/apache/cxf/rs/security/oauth2/grants/code/ServerAuthorizationCodeGrant.class,
+                        org/apache/cxf/rs/security/oauth2/tokens/bearer/BearerAccessToken.class,
+                        org/apache/cxf/rs/security/oauth2/common/ServerAccessToken.class,
+                        org/apache/cxf/rs/security/oauth2/common/AccessToken.class,
+                        org/apache/cxf/rs/security/oauth2/tokens/refresh/RefreshToken.class,
+                        org/apache/cxf/rs/security/oauth2/common/OAuthPermission.class
+                    </includes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>enhancer</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>test-enhance</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            -->
+            <!-- this configures the surefire plugin to run your tests with the javaagent enabled -->
+            <!-- (openJPA loadtime weaving) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>-javaagent:${project.basedir}/target/openjpa-${openjpa.version}.jar
+                        -javaagent:${project.basedir}/target/spring-instrument-${spring.version}.jar</argLine>
+                    <workingDirectory>${project.basedir}/target</workingDirectory>
+                </configuration>
+            </plugin>
+            <!-- this tells maven to copy the openjpa agent jar into your target/ directory -->
+            <!-- where surefire can see it -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.openjpa</groupId>
+                                    <artifactId>openjpa</artifactId>
+                                    <version>${openjpa.version}</version>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.springframework</groupId>
+                                    <artifactId>spring-instrument</artifactId>
+                                    <version>${spring.version}</version>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
